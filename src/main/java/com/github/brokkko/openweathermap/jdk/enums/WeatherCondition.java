@@ -8,7 +8,6 @@ import java.util.Optional;
  * More details <a href="https://openweathermap.org/weather-conditions#Weather-Condition-Codes-2">here</a>.
  */
 public enum WeatherCondition {
-    // Group 2xx: Thunderstorm
 
     /**
      * The thunderstorm with light rain.
@@ -51,8 +50,6 @@ public enum WeatherCondition {
      */
     THUNDERSTORM_HEAVY_DRIZZLE(232, "Thunderstorm", "thunderstorm with heavy drizzle", "11"),
 
-    // Group 3xx: Drizzle
-
     /**
      * The light intensity drizzle.
      */
@@ -89,8 +86,6 @@ public enum WeatherCondition {
      * The shower drizzle.
      */
     DRIZZLE_SHOWER(321, "Drizzle", "shower drizzle", "09"),
-
-    // Group 5xx: Rain
 
     /**
      * The light rain.
@@ -132,8 +127,6 @@ public enum WeatherCondition {
      * The ragged shower rain.
      */
     RAIN_RAGGED_SHOWER(531, "Rain", "ragged shower rain", "10"),
-
-    // Group 6xx: Snow
 
     /**
      * The light snow.
@@ -180,8 +173,6 @@ public enum WeatherCondition {
      */
     SNOW_HEAVY_SHOWER_SNOW(622, "Snow", "heavy shower snow", "13"),
 
-    // Group 7xx: Atmosphere
-
     /**
      * The mist.
      */
@@ -223,14 +214,10 @@ public enum WeatherCondition {
      */
     TORNADO(781, "Tornado", "tornado", "50"),
 
-    // Group 800: Clear
-
     /**
      * The clear sky.
      */
     CLEAR(800, "Clear", "clear sky", "01"),
-
-    // Group 80x: Clouds
 
     /**
      * A few clouds: 11-25%.

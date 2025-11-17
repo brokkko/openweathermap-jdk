@@ -23,22 +23,61 @@ import java.net.http.*;
 
 import static com.github.brokkko.openweathermap.jdk.constants.LogMessages.*;
 
+/**
+ * HTTP execution component responsible for performing outbound requests to the
+ * OpenWeatherMap API using Java {@link HttpClient}.
+ * <p>
+ * This class acts as the low-level transport layer of the SDK:
+ * <ul>
+ *     <li>builds an HTTP GET request from {@link RequestSettings}</li>
+ *     <li>executes the request using the configured {@link HttpClient}</li>
+ *     <li>applies retry logic via {@link RetryPolicy}</li>
+ *     <li>converts network/IO errors into SDK-specific exceptions</li>
+ *     <li>logs all outgoing requests and error events</li>
+ * </ul>
+ *
+ * <p>
+ * All exceptions thrown by this executor are converted into SDK-specific
+ * subclasses of {@link WeatherSdkException}, making it safe for use in public API layers.
+ */
 public final class WeatherHttpExecutor {
 
     private final HttpClient client;
     private final RetryPolicy retryPolicy;
     private final WeatherLogger logger;
 
+    /**
+     * Creates a new HTTP executor.
+     *
+     * @param client      underlying HTTP client used for request execution
+     * @param retryPolicy retry strategy used when execution fails
+     * @param logger      logger for debug/error output
+     */
     public WeatherHttpExecutor(HttpClient client, RetryPolicy retryPolicy, WeatherLogger logger) {
         this.client = client;
         this.retryPolicy = retryPolicy;
         this.logger = logger;
     }
 
+    /**
+     * Executes an HTTP request defined in {@link RequestSettings},
+     * applying retries via {@link RetryPolicy}.
+     *
+     * @param settings request configuration (URL + query parameters)
+     * @return response body as UTF-8 text
+     * @throws WeatherTimeoutException if request timeout occurs
+     * @throws WeatherNetworkException if network connectivity errors occur
+     * @throws WeatherApiException if OpenWeatherMap returns a non-2xx response
+     * @throws WeatherSdkException for unexpected or internal errors
+     */
     public String execute(RequestSettings settings) {
         return retryPolicy.executeWithRetry(() -> doExecute(settings));
     }
 
+    /**
+     * Executes the HTTP call a single time (without retries).
+     * Internal method used by {@link #execute(RequestSettings)}.
+     */
     private String doExecute(RequestSettings settings) {
         String url = buildUrl(settings);
 
@@ -88,6 +127,9 @@ public final class WeatherHttpExecutor {
         );
     }
 
+    /**
+     * Builds the full URL with encoded query parameters.
+     */
     private String buildUrl(RequestSettings requestSettings) {
         StringBuilder requestUrlBuilder = new StringBuilder();
         requestUrlBuilder.append(requestSettings.getUrlBuilder());
@@ -104,5 +146,3 @@ public final class WeatherHttpExecutor {
         return java.net.URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
 }
-
-

@@ -1,5 +1,13 @@
 package com.github.brokkko.openweathermap.jdk.constants;
 
+/**
+ * A collection of default values used by the OpenWeather SDK when performing requests.
+ * <p>
+ * These constants define standard parameters.
+ * <p>
+ * The class acts as a single source of truth for default configuration values,
+ * preventing duplication and ensuring consistent SDK behavior.
+ */
 public final class DefaultValueConstants {
 
     private DefaultValueConstants() {}

@@ -13,8 +13,10 @@ import java.util.Optional;
 import static com.github.brokkko.openweathermap.jdk.constants.LogMessages.*;
 
 /**
- * Terminator — финальный этап fluent API: решает, брать ответ из кэша или дернуть HTTP.
- * Он имеет ссылку на клиента (контекст), чтобы знать mode (ON_DEMAND / POLLING) и иметь доступ к cacheService.
+ * Final stage of the fluent API. Responsible for:
+ * - selecting cache or live HTTP request depending on SDK mode,
+ * - retrieving raw JSON or mapping it into {@link Weather},
+ * - handling caching rules and failures.
  */
 public class WeatherRequestTerminator {
 
@@ -22,12 +24,24 @@ public class WeatherRequestTerminator {
     private final OpenWeatherMapClient client;
     private final WeatherLogger logger;
 
+    /**
+     * Creates a terminating stage with required context.
+     *
+     * @param client          API client.
+     * @param logger          logger.
+     * @param requestSettings configured request settings.
+     */
     public WeatherRequestTerminator(OpenWeatherMapClient client, WeatherLogger logger, RequestSettings requestSettings) {
         this.requestSettings = requestSettings;
         this.client = client;
         this.logger = logger;
     }
 
+    /**
+     * Executes the request and maps the response into a {@link Weather} object.
+     *
+     * @return parsed Weather result.
+     */
     public Weather asJava() {
         try {
             String json = getRawResponse();
@@ -41,19 +55,33 @@ public class WeatherRequestTerminator {
         }
     }
 
+    /**
+     * Executes the request and returns the response as a raw JSON string.
+     *
+     * @return JSON response.
+     */
     public String asJSON() {
         return getRawResponse();
     }
 
+    /**
+     * Resolves the raw JSON response according to the client's SDK mode.
+     * <p>
+     * In ON_DEMAND mode the terminator first checks the cache and falls back to an HTTP request
+     * if no fresh cached value is available. In POLLING mode the terminator assumes that polling
+     * keeps cache entries up-to-date and will retrieve data from the cache when possible.
+     * </p>
+     *
+     * @return raw JSON response from cache or HTTP executor
+     * @throws WeatherSdkException if an unexpected error occurs or a low-level exception must be wrapped
+     */
     private String getRawResponse() {
         String cacheKey = requestSettings.cacheKey();
 
         try {
-            // ON_DEMAND: сначала проверить кэш, если есть & свежо -> вернуть; иначе выполнить запрос и положить в кэш
             if (client.getSdkMode() == SdkMode.ON_DEMAND) {
                return handleOnDemand(cacheKey);
             }
-            // POLLING: ожидание что poller держит данные свежими; если нет данных — fall back на запрос
             return handleOnPolling(cacheKey);
         } catch (Exception e) {
             if (e instanceof WeatherSdkException) {
@@ -63,6 +91,18 @@ public class WeatherRequestTerminator {
         }
     }
 
+    /**
+     * Handles response retrieval in ON_DEMAND mode:
+     * <ul>
+     *     <li>returns a cached value when present</li>
+     *     <li>logs cache hit/miss events</li>
+     *     <li>executes an HTTP request when no cached value is available</li>
+     *     <li>stores the response in the cache using a copy of the current request settings</li>
+     * </ul>
+     *
+     * @param cacheKey key used to look up cached responses
+     * @return raw JSON response, either from cache or via HTTP
+     */
     private String handleOnDemand(String cacheKey) {
         Optional<String> cached = client.getCacheService().get(cacheKey);
         if (cached.isPresent()) {
@@ -75,6 +115,18 @@ public class WeatherRequestTerminator {
         return resp;
     }
 
+    /**
+     * Handles response retrieval in POLLING mode:
+     * <ul>
+     *     <li>attempts to return a cached value, assuming polling keeps entries fresh</li>
+     *     <li>logs cache hit/miss events</li>
+     *     <li>executes an HTTP request only as a fallback when the cache is empty</li>
+     *     <li>stores the newly retrieved response in the cache</li>
+     * </ul>
+     *
+     * @param cacheKey key used to look up cached responses
+     * @return raw JSON response, either from cache or via HTTP
+     */
     private String handleOnPolling(String cacheKey) {
         Optional<String> cached = client.getCacheService().get(cacheKey);
         if (cached.isPresent()) {

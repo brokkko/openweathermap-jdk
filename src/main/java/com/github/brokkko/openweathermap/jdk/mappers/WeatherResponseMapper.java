@@ -66,11 +66,25 @@ public class WeatherResponseMapper {
     private final UnitSystem unitSystem;
     private final WeatherLogger logger;
 
+    /**
+     * Creates a new WeatherResponseMapper.
+     *
+     * @param unitSystem the unit system used to interpret temperature and wind values;
+     *                   if null, defaults to {@link UnitSystem#STANDARD}.
+     * @param logger     logger used to record parsing errors.
+     */
     public WeatherResponseMapper(UnitSystem unitSystem, WeatherLogger logger) {
         this.unitSystem = unitSystem != null ? unitSystem : UnitSystem.STANDARD;
         this.logger = logger;
     }
 
+    /**
+     * Parses JSON string into a {@link Weather} instance.
+     *
+     * @param json JSON string returned by OpenWeather API.
+     * @return parsed Weather object.
+     * @throws WeatherSerializationException when JSON is invalid or cannot be parsed.
+     */
     public Weather mapJsonToWeather(String json) {
         final ObjectMapper objectMapper = new ObjectMapper();
         Weather weather;
@@ -84,6 +98,12 @@ public class WeatherResponseMapper {
         return weather;
     }
 
+    /**
+     * Parses the root JSON node into a Weather instance.
+     *
+     * @param rootNode root JSON object.
+     * @return fully populated Weather object.
+     */
     private Weather parseWeather(JsonNode rootNode) {
         final JsonNode weatherArrayNode = rootNode.get(WEATHER);
         final JsonNode weatherNode = weatherArrayNode != null ? weatherArrayNode.get(0) : null;
@@ -106,6 +126,12 @@ public class WeatherResponseMapper {
         return weather;
     }
 
+    /**
+     * Parses the "weather" section, extracting basic weather state.
+     *
+     * @param weatherNode JSON node containing weather state.
+     * @return WeatherState or null if section missing.
+     */
     private WeatherState parseWeatherState(JsonNode weatherNode) {
         if (weatherNode == null) {
             return null;
@@ -119,6 +145,12 @@ public class WeatherResponseMapper {
         return weatherState;
     }
 
+    /**
+     * Parses the "main" node to extract temperature, temp min/max, and "feels like".
+     *
+     * @param rootNode root JSON object.
+     * @return Temperature model.
+     */
     private Temperature parseTemperature(JsonNode rootNode) {
         final JsonNode mainNode = rootNode.get(MAIN);
         final double tempValue = mainNode.get(TEMP).asDouble();
@@ -139,6 +171,12 @@ public class WeatherResponseMapper {
         return temperature;
     }
 
+    /**
+     * Parses atmospheric pressure, including sea and ground level.
+     *
+     * @param rootNode root JSON.
+     * @return AtmosphericPressure model.
+     */
     private AtmosphericPressure parsePressure(JsonNode rootNode) {
         final JsonNode mainNode = rootNode.get(MAIN);
         final AtmosphericPressure atmosphericPressure = AtmosphericPressure.withValue(mainNode.get("pressure").asDouble());
@@ -154,11 +192,23 @@ public class WeatherResponseMapper {
         return atmosphericPressure;
     }
 
+    /**
+     * Parses humidity value from the "main" node.
+     *
+     * @param rootNode root JSON.
+     * @return Humidity model.
+     */
     private Humidity parseHumidity(JsonNode rootNode) {
         final JsonNode mainNode = rootNode.get(MAIN);
         return Humidity.withValue((byte) (mainNode.get(HUMIDITY).asInt()));
     }
 
+    /**
+     * Parses wind speed, direction, and gust.
+     *
+     * @param rootNode root JSON.
+     * @return Wind model.
+     */
     private Wind parseWind(JsonNode rootNode) {
         final JsonNode windNode = rootNode.get(WIND);
         double speed = windNode.get(SPEED).asDouble();
@@ -176,6 +226,12 @@ public class WeatherResponseMapper {
         return wind;
     }
 
+    /**
+     * Parses rain volume for 1h and 3h if present.
+     *
+     * @param rootNode root JSON.
+     * @return Rain model or null.
+     */
     private Rain parseRain(JsonNode rootNode) {
         final JsonNode rainNode = rootNode.get(RAIN);
         if (rainNode != null) {
@@ -192,6 +248,12 @@ public class WeatherResponseMapper {
         return null;
     }
 
+    /**
+     * Parses snow volume for 1h and 3h if present.
+     *
+     * @param rootNode root JSON.
+     * @return Snow model or null.
+     */
     private Snow parseSnow(JsonNode rootNode) {
         final JsonNode snowNode = rootNode.get(SNOW);
         if (snowNode != null) {
@@ -208,6 +270,12 @@ public class WeatherResponseMapper {
         return null;
     }
 
+    /**
+     * Parses cloud coverage.
+     *
+     * @param rootNode root JSON.
+     * @return Clouds model or null.
+     */
     private Clouds parseClouds(JsonNode rootNode) {
         final JsonNode cloudsNode = rootNode.get(CLOUDS);
         final JsonNode allValueNode = cloudsNode.get(ALL);
@@ -217,6 +285,12 @@ public class WeatherResponseMapper {
         return null;
     }
 
+    /**
+     * Parses city/location data: id, name, timezone, sunrise, sunset, coordinates.
+     *
+     * @param rootNode root JSON.
+     * @return Location model.
+     */
     private Location parseLocation(JsonNode rootNode) {
         final Location location = Location.withValues(rootNode.get(ID).asInt(), rootNode.get(NAME).asText());
 
@@ -249,6 +323,12 @@ public class WeatherResponseMapper {
         return location;
     }
 
+    /**
+     * Parses latitude/longitude.
+     *
+     * @param rootNode coord JSON node.
+     * @return Coordinate model or null.
+     */
     private Coordinate parseCoordinate(JsonNode rootNode) {
         final JsonNode latitudeNode = rootNode.get(LAT);
         final JsonNode longitudeNode = rootNode.get(LON);
@@ -257,5 +337,4 @@ public class WeatherResponseMapper {
         }
         return null;
     }
-
 }

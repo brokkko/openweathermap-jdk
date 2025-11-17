@@ -8,6 +8,23 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Default implementation of {@link WeatherLogger} based on the JDK {@link Logger}.
+ * <p>
+ * This logger prints messages to the console using {@link ConsoleHandler} and a custom
+ * {@link WeatherSdkLogFormatter}. It supports SDK-defined logging levels from
+ * {@link LogLevel} and maps them to corresponding JDK {@link Level} values.
+ * <p>
+ * ANSI colors are applied via the formatter to improve readability.
+ *
+ * <h3>Features:</h3>
+ * <ul>
+ *     <li>Per-class logger name</li>
+ *     <li>Configurable log level</li>
+ *     <li>Custom formatter with timestamps and colors</li>
+ *     <li>Debug, info, warning, and error logging methods</li>
+ * </ul>
+ */
 public class DefaultWeatherLogger implements WeatherLogger {
 
     private final Logger logger;

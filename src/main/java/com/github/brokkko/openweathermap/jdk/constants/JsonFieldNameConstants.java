@@ -1,5 +1,17 @@
 package com.github.brokkko.openweathermap.jdk.constants;
 
+/**
+ * A centralized set of string constants representing JSON field names
+ * returned by the OpenWeather API.
+ * <p>
+ * These constants are used throughout the SDK during JSON parsing,
+ * data mapping, and model creation. Defining all JSON keys in one place
+ * helps avoid hard-coded strings, prevents typographical errors,
+ * and simplifies maintenance when the API structure changes.
+ * <p>
+ * The constants correspond to actual fields returned by OpenWeather,
+ * such as {@code "temp"}, {@code "humidity"}, {@code "wind"}, etc.
+ */
 public final class JsonFieldNameConstants {
 
     private JsonFieldNameConstants() {}

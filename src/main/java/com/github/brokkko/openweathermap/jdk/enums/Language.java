@@ -1,5 +1,8 @@
 package com.github.brokkko.openweathermap.jdk.enums;
 
+/**
+ * Represents languages that can be used at WeatherOpenMap API.
+ */
 public enum Language {
     /**
      * Afrikaans language.

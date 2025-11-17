@@ -1,5 +1,17 @@
 package com.github.brokkko.openweathermap.jdk.constants;
 
+/**
+ * A set of message templates used by the SDK’s logging subsystem.
+ * <p>
+ * All operations related to HTTP requests, caching, retry mechanisms,
+ * scheduled polling, and error handling rely on the constants defined
+ * in this class to produce human-readable, consistent log messages.
+ * <p>
+ * Most constants are format strings intended to be used with
+ * {@link String#format(String, Object...)}.
+ * Centralizing all log message templates ensures consistent style and
+ * simplifies debugging and log analysis.
+ */
 public final class LogMessages {
 
     private LogMessages() {}
