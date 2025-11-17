@@ -16,6 +16,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Verify token and actor
+        env:
+          TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+        run: |
+          echo "Actor: $GITHUB_ACTOR"
+          curl -s -H "Authorization: token $TOKEN" https://api.github.com/user | jq -r '.login as $l | "token_owner:($l), id:(.id)"'
+          curl -s -H "Authorization: token $TOKEN" https://api.github.com/user/packages | jq -r '.[0] | {name: .name, package_type: .package_type}' || true
+
       - name: Set up JDK 21 and configure Maven server
         uses: actions/setup-java@v4
         with:
