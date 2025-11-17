@@ -66,4 +66,24 @@ class WeatherPollingSchedulerTest {
         verify(logger).error(contains("k1"), any());
         verify(cache, never()).put(any(), any(), any());
     }
+
+    @Test
+    void testPollOnce_emptySnapshot() {
+        when(cache.getAllRequestSettingsSnapshot()).thenReturn(Map.of());
+
+        scheduler.pollOnce();
+
+        verify(logger).debug(contains("no cached entries"));
+        verify(http, never()).execute(any());
+    }
+
+    @Test
+    void testPollOnce_nullSnapshot() {
+        when(cache.getAllRequestSettingsSnapshot()).thenReturn(null);
+
+        scheduler.pollOnce();
+
+        verify(logger).debug(contains("no cached entries"));
+        verify(http, never()).execute(any());
+    }
 }

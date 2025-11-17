@@ -78,4 +78,46 @@ class WeatherCacheServiceImplTest {
         assertEquals(1, snapshot.size());
         assertSame(rs, snapshot.get("k")); // shallow copy is correct
     }
+
+    @Test
+    void testGetAllKeys() {
+        RequestSettings rs1 = new RequestSettings("key");
+        RequestSettings rs2 = new RequestSettings("key");
+
+        cache.put("key1", "json1", rs1);
+        cache.put("key2", "json2", rs2);
+
+        var keys = cache.getAllKeys();
+
+        assertEquals(2, keys.size());
+        assertTrue(keys.contains("key1"));
+        assertTrue(keys.contains("key2"));
+    }
+
+    @Test
+    void testClear() {
+        RequestSettings rs = new RequestSettings("key");
+        cache.put("a", "json1", rs);
+        cache.put("b", "json2", rs);
+
+        assertEquals(2, cache.getAllKeys().size());
+
+        cache.clear();
+
+        assertEquals(0, cache.getAllKeys().size());
+        assertEquals(Optional.empty(), cache.get("a"));
+        assertEquals(Optional.empty(), cache.get("b"));
+    }
+
+    @Test
+    void testUpdateExistingKey() {
+        RequestSettings rs1 = new RequestSettings("key");
+        RequestSettings rs2 = new RequestSettings("key");
+
+        cache.put("a", "json1", rs1);
+        cache.put("a", "json2", rs2);
+
+        assertEquals(Optional.of("json2"), cache.get("a"));
+        assertEquals(1, cache.getAllKeys().size());
+    }
 }

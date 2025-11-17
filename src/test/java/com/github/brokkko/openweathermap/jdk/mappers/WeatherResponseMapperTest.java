@@ -172,4 +172,185 @@ class WeatherResponseMapperTest {
         }
     }
 
+    @Test
+    void testMapperWithNullUnitSystem() {
+        WeatherLogger logger = mock(WeatherLogger.class);
+        WeatherResponseMapper mapper = new WeatherResponseMapper(null, logger);
+
+        String json = """
+                {
+                  "weather": [{"id": 800, "main": "Clear", "description": "clear sky", "icon": "01d"}],
+                  "main": {"temp": 273.15, "pressure": 1013, "humidity": 50},
+                  "wind": {"speed": 5.0},
+                  "id": 1,
+                  "name": "Test",
+                  "clouds": {"all": 0},
+                  "dt": 1700000000
+                }
+                """;
+
+        Weather w = mapper.mapJsonToWeather(json);
+        assertNotNull(w);
+    }
+
+    @Test
+    void testMapperWithImperialUnits() {
+        WeatherLogger logger = mock(WeatherLogger.class);
+        WeatherResponseMapper mapper = new WeatherResponseMapper(UnitSystem.IMPERIAL, logger);
+
+        String json = """
+                {
+                  "weather": [{"id": 800, "main": "Clear", "description": "clear sky", "icon": "01d"}],
+                  "main": {"temp": 75.0, "pressure": 1013, "humidity": 50},
+                  "wind": {"speed": 10.0},
+                  "id": 1,
+                  "name": "Test",
+                  "clouds": {"all": 0},
+                  "dt": 1700000000
+                }
+                """;
+
+        Weather w = mapper.mapJsonToWeather(json);
+        assertNotNull(w);
+        assertEquals("°F", w.getTemperature().getUnit());
+        assertEquals("miles/hour", w.getWind().getUnit());
+    }
+
+    @Test
+    void testMapperWithMissingOptionalFields() {
+        WeatherLogger logger = mock(WeatherLogger.class);
+        WeatherResponseMapper mapper = new WeatherResponseMapper(UnitSystem.METRIC, logger);
+
+        String json = """
+                {
+                  "weather": [{"id": 800, "main": "Clear", "description": "clear sky", "icon": "01d"}],
+                  "main": {"temp": 20.0, "pressure": 1013, "humidity": 50},
+                  "wind": {"speed": 5.0},
+                  "id": 1,
+                  "name": "Test",
+                  "clouds": {"all": 0},
+                  "dt": 1700000000
+                }
+                """;
+
+        Weather w = mapper.mapJsonToWeather(json);
+        assertNotNull(w);
+        assertNull(w.getRain());
+        assertNull(w.getSnow());
+        assertNull(w.getTemperature().getFeelsLike());
+    }
+
+    @Test
+    void testMapperWithRainThreeHourOnly() {
+        WeatherLogger logger = mock(WeatherLogger.class);
+        WeatherResponseMapper mapper = new WeatherResponseMapper(UnitSystem.METRIC, logger);
+
+        String json = """
+                {
+                  "weather": [{"id": 500, "main": "Rain", "description": "light rain", "icon": "10d"}],
+                  "main": {"temp": 18.0, "pressure": 1010, "humidity": 80},
+                  "wind": {"speed": 3.0},
+                  "rain": {"3h": 2.5},
+                  "id": 1,
+                  "name": "Test",
+                  "clouds": {"all": 75},
+                  "dt": 1700000000
+                }
+                """;
+
+        Weather w = mapper.mapJsonToWeather(json);
+        assertNotNull(w.getRain());
+        assertNull(w.getRain().getOneHourLevel());
+        assertEquals(2.5, w.getRain().getThreeHourLevel());
+    }
+
+    @Test
+    void testMapperWithSnowOneHourOnly() {
+        WeatherLogger logger = mock(WeatherLogger.class);
+        WeatherResponseMapper mapper = new WeatherResponseMapper(UnitSystem.METRIC, logger);
+
+        String json = """
+                {
+                  "weather": [{"id": 600, "main": "Snow", "description": "light snow", "icon": "13d"}],
+                  "main": {"temp": -2.0, "pressure": 1015, "humidity": 90},
+                  "wind": {"speed": 2.0},
+                  "snow": {"1h": 1.0},
+                  "id": 1,
+                  "name": "Test",
+                  "clouds": {"all": 100},
+                  "dt": 1700000000
+                }
+                """;
+
+        Weather w = mapper.mapJsonToWeather(json);
+        assertNotNull(w.getSnow());
+        assertEquals(1.0, w.getSnow().getOneHourLevel());
+        assertNull(w.getSnow().getThreeHourLevel());
+    }
+
+    @Test
+    void testMapperWithInvalidJson() {
+        WeatherLogger logger = mock(WeatherLogger.class);
+        WeatherResponseMapper mapper = new WeatherResponseMapper(UnitSystem.METRIC, logger);
+
+        String invalidJson = "{ invalid json }";
+
+        assertThrows(WeatherSerializationException.class, () -> mapper.mapJsonToWeather(invalidJson));
+        verify(logger).error(anyString(), any(Exception.class));
+    }
+
+    @Test
+    void testMapperWithNullClouds() {
+        WeatherLogger logger = mock(WeatherLogger.class);
+        WeatherResponseMapper mapper = new WeatherResponseMapper(UnitSystem.METRIC, logger);
+
+        String json = """
+                {
+                  "weather": [{"id": 800, "main": "Clear", "description": "clear sky", "icon": "01d"}],
+                  "main": {"temp": 20.0, "pressure": 1013, "humidity": 50},
+                  "wind": {"speed": 5.0},
+                  "id": 1,
+                  "name": "Test",
+                  "clouds": {},
+                  "dt": 1700000000
+                }
+                """;
+
+        Weather w = mapper.mapJsonToWeather(json);
+        assertNull(w.getClouds());
+    }
+
+    @Test
+    void testMapperWithLocationDetails() {
+        WeatherLogger logger = mock(WeatherLogger.class);
+        WeatherResponseMapper mapper = new WeatherResponseMapper(UnitSystem.METRIC, logger);
+
+        String json = """
+                {
+                  "weather": [{"id": 800, "main": "Clear", "description": "clear sky", "icon": "01d"}],
+                  "main": {"temp": 20.0, "pressure": 1013, "humidity": 50},
+                  "wind": {"speed": 5.0},
+                  "id": 12345,
+                  "name": "Moscow",
+                  "timezone": 10800,
+                  "sys": {"country": "RU", "sunrise": 1700000000, "sunset": 1700040000},
+                  "coord": {"lat": 55.75, "lon": 37.62},
+                  "clouds": {"all": 0},
+                  "dt": 1700020000
+                }
+                """;
+
+        Weather w = mapper.mapJsonToWeather(json);
+        assertNotNull(w.getLocation());
+        assertEquals(12345, w.getLocation().getId());
+        assertEquals("Moscow", w.getLocation().getName());
+        assertEquals("RU", w.getLocation().getCountryCode());
+        assertNotNull(w.getLocation().getSunriseTime());
+        assertNotNull(w.getLocation().getSunsetTime());
+        assertNotNull(w.getLocation().getZoneOffset());
+        assertNotNull(w.getLocation().getCoordinate());
+        assertEquals(55.75, w.getLocation().getCoordinate().getLatitude());
+        assertEquals(37.62, w.getLocation().getCoordinate().getLongitude());
+    }
+
 }

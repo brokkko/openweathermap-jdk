@@ -126,4 +126,103 @@ class WeatherTest {
         assertTrue(result.contains("10"));
         assertTrue(result.contains("Rain: 0.5 mm"));
     }
+
+    @Test
+    void toString_shouldIncludeSnow() {
+        Weather w = new Weather();
+        w.setLocation(Location.withValues(1, "Oslo"));
+        w.setSnow(Snow.withOneHourLevelValue(2.0));
+
+        String result = w.toString();
+
+        assertTrue(result.contains("Oslo"));
+        assertTrue(result.contains("Snow: 2.0 mm"));
+    }
+
+    @Test
+    void toString_shouldHandleLocationWithCountryCode() {
+        Weather w = new Weather();
+        Location loc = Location.withValues(1, "Paris");
+        loc.setCountryCode("FR");
+        w.setLocation(loc);
+
+        String result = w.toString();
+
+        assertTrue(result.contains("Paris"));
+        assertTrue(result.contains("FR"));
+    }
+
+    @Test
+    void toString_shouldHandleMinimalData() {
+        Weather w = new Weather();
+
+        String result = w.toString();
+
+        assertNotNull(result);
+        assertEquals("", result);
+    }
+
+    @Test
+    void toString_shouldSkipRainWithNullOneHourLevel() {
+        Weather w = new Weather();
+        w.setLocation(Location.withValues(1, "London"));
+        w.setRain(Rain.withThreeHourLevelValue(1.5));
+
+        String result = w.toString();
+
+        assertTrue(result.contains("London"));
+        assertFalse(result.contains("Rain:"));
+    }
+
+    @Test
+    void toString_shouldSkipSnowWithNullOneHourLevel() {
+        Weather w = new Weather();
+        w.setLocation(Location.withValues(1, "Stockholm"));
+        w.setSnow(Snow.withThreeHourLevelValue(3.0));
+
+        String result = w.toString();
+
+        assertTrue(result.contains("Stockholm"));
+        assertFalse(result.contains("Snow:"));
+    }
+
+    @Test
+    void equals_shouldReturnTrue_forSameObject() {
+        Weather w = new Weather();
+        assertEquals(w, w);
+    }
+
+    @Test
+    void equals_shouldReturnFalse_forNull() {
+        Weather w = new Weather();
+        assertNotEquals(w, null);
+    }
+
+    @Test
+    void equals_shouldReturnFalse_forDifferentClass() {
+        Weather w = new Weather();
+        assertNotEquals(w, "not a weather object");
+    }
+
+    @Test
+    void equals_shouldReturnFalse_forDifferentCalculationTime() {
+        Weather w1 = new Weather();
+        Weather w2 = new Weather();
+
+        w1.setCalculationTime(LocalDateTime.of(2023, 11, 15, 10, 0));
+        w2.setCalculationTime(LocalDateTime.of(2023, 11, 15, 11, 0));
+
+        assertNotEquals(w1, w2);
+    }
+
+    @Test
+    void hashCode_shouldBeDifferent_forDifferentObjects() {
+        Weather w1 = new Weather();
+        Weather w2 = new Weather();
+
+        w1.setTemperature(Temperature.withValue(20, "C"));
+        w2.setTemperature(Temperature.withValue(25, "C"));
+
+        assertNotEquals(w1.hashCode(), w2.hashCode());
+    }
 }
