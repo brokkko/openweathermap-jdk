@@ -1,0 +1,36 @@
+name: Release to GitHub Packages
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21 and configure Maven server
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          server-id: github
+          server-username: GITHUB_ACTOR
+          server-password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cache Maven repository
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: m2-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: m2-${{ runner.os }}-
+
+      - name: Build and deploy to GitHub Packages
+        run: mvn -B -DskipTests deploy
