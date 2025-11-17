@@ -66,7 +66,6 @@ public class WeatherResponseMapper {
     private final UnitSystem unitSystem;
     private final WeatherLogger logger;
 
-    // TODO: вынести константы
     public WeatherResponseMapper(UnitSystem unitSystem, WeatherLogger logger) {
         this.unitSystem = unitSystem != null ? unitSystem : UnitSystem.STANDARD;
         this.logger = logger;
