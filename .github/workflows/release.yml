@@ -23,7 +23,7 @@ jobs:
           java-version: 21
           server-id: github
           server-username: GITHUB_ACTOR
-          server-password: ${{ secrets.GITHUB_TOKEN }}
+          server-password: ${{ secrets.PERSONAL_TOKEN }}
 
       - name: Cache Maven repository
         uses: actions/cache@v4
