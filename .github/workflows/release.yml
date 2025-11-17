@@ -22,7 +22,7 @@ jobs:
           distribution: temurin
           java-version: 21
           server-id: github
-          server-username: GITHUB_ACTOR
+          server-username: brokkko
           server-password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Cache Maven repository
