@@ -32,16 +32,18 @@ public class DefaultWeatherLogger implements WeatherLogger {
     public DefaultWeatherLogger(Class<?> clazz, LogLevel level) {
         this.logger = Logger.getLogger(clazz.getName());
         this.logger.setUseParentHandlers(false);
+
+        // Remove already installed handlers (if constructor called multiple times)
+        for (Handler h : logger.getHandlers()) {
+            logger.removeHandler(h);
+        }
+
         Handler handler = new ConsoleHandler();
-        handler.setLevel(Level.ALL);
-        logger.addHandler(handler);
-        logger.setLevel(Level.ALL);
         handler.setFormatter(new WeatherSdkLogFormatter());
-
         handler.setLevel(toJdkLevel(level));
-        this.logger.addHandler(handler);
+        logger.setLevel(toJdkLevel(level));
 
-        this.logger.setLevel(toJdkLevel(level));
+        logger.addHandler(handler);
     }
 
     @Override
