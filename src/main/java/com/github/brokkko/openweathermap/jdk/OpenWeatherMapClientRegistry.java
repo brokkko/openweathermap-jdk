@@ -1,4 +1,4 @@
-package com.github.brokkko.openweathermap.jdk.core;
+package com.github.brokkko.openweathermap.jdk;
 
 import com.github.brokkko.openweathermap.jdk.clients.ClientConfig;
 import com.github.brokkko.openweathermap.jdk.clients.OpenWeatherMapClient;
