@@ -17,6 +17,12 @@ class RetryPolicyFactoryTest {
             new DefaultWeatherLogger(RetryPolicyFactoryTest.class, LogLevel.INFO);
 
     @Test
+    void testConstructor() {
+        RetryPolicyFactory factory = new RetryPolicyFactory();
+        assertNotNull(factory);
+    }
+
+    @Test
     void testCreateNoRetryPolicy() {
         RetryPolicy policy = RetryPolicyFactory.create(
                 RetryPolicyType.NONE,

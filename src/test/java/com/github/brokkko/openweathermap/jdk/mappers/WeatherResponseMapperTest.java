@@ -1,14 +1,48 @@
 package com.github.brokkko.openweathermap.jdk.mappers;
 
+import com.github.brokkko.openweathermap.jdk.clients.OpenWeatherMapClient;
+import com.github.brokkko.openweathermap.jdk.enums.SdkMode;
 import com.github.brokkko.openweathermap.jdk.enums.UnitSystem;
+import com.github.brokkko.openweathermap.jdk.exceptions.WeatherSerializationException;
+import com.github.brokkko.openweathermap.jdk.http.WeatherHttpExecutor;
 import com.github.brokkko.openweathermap.jdk.logging.WeatherLogger;
 import com.github.brokkko.openweathermap.jdk.models.Weather;
+import com.github.brokkko.openweathermap.jdk.request.RequestSettings;
+import com.github.brokkko.openweathermap.jdk.request.terminaters.WeatherRequestTerminator;
+import com.github.brokkko.openweathermap.jdk.services.WeatherCacheService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedConstruction;
+import org.mockito.Mockito;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 class WeatherResponseMapperTest {
+
+    private OpenWeatherMapClient client;
+    private WeatherLogger logger;
+    private WeatherCacheService cache;
+    private WeatherHttpExecutor httpExecutor;
+    private RequestSettings rs;
+
+    @BeforeEach
+    void setup() {
+        client = mock(OpenWeatherMapClient.class);
+        logger = mock(WeatherLogger.class);
+        cache = mock(WeatherCacheService.class);
+        httpExecutor = mock(WeatherHttpExecutor.class);
+
+        when(client.getCacheService()).thenReturn(cache);
+        when(client.getHttpExecutor()).thenReturn(httpExecutor);
+
+        rs = mock(RequestSettings.class);
+        when(rs.cacheKey()).thenReturn("moscow");
+        when(rs.getUnitSystem()).thenReturn(UnitSystem.METRIC);
+        when(rs.copy()).thenReturn(rs);
+    }
 
     @Test
     void testFullJsonMapping() {
@@ -69,6 +103,73 @@ class WeatherResponseMapperTest {
         assertEquals(1.2, w.getSnow().getThreeHourLevel());
 
         assertEquals(10, w.getClouds().getValue());
+    }
+
+    @Test
+    void testHandleOnPolling_cacheMiss() {
+        when(client.getSdkMode()).thenReturn(SdkMode.POLLING_MODE);
+        when(cache.get("Moscow")).thenReturn(Optional.empty());
+        when(httpExecutor.execute(rs)).thenReturn("{json-response}");
+
+        WeatherRequestTerminator terminator = new WeatherRequestTerminator(client, logger, rs);
+
+        String json = terminator.asJSON();
+
+        assertEquals("{json-response}", json);
+        verify(httpExecutor).execute(rs);
+    }
+
+    @Test
+    void testHandleOnPolling_cacheHit() {
+        when(client.getSdkMode()).thenReturn(SdkMode.POLLING_MODE);
+        when(cache.get("moscow")).thenReturn(Optional.of("cached-json"));
+
+        WeatherRequestTerminator terminator = new WeatherRequestTerminator(client, logger, rs);
+
+        String json = terminator.asJSON();
+
+        assertEquals("cached-json", json);
+        verify(httpExecutor, never()).execute(any());
+    }
+
+    @Test
+    void testAsJava_success() {
+        when(client.getSdkMode()).thenReturn(SdkMode.ON_DEMAND);
+        when(cache.get("moscow")).thenReturn(Optional.of("{json-ok}"));
+
+        Weather mockWeather = mock(Weather.class);
+
+        try (MockedConstruction<WeatherResponseMapper> mapperMock =
+                     Mockito.mockConstruction(
+                             WeatherResponseMapper.class,
+                             (mock, context) -> when(mock.mapJsonToWeather("{json-ok}"))
+                                     .thenReturn(mockWeather)
+                     )) {
+
+            WeatherRequestTerminator terminator = new WeatherRequestTerminator(client, logger, rs);
+
+            Weather w = terminator.asJava();
+
+            assertSame(mockWeather, w);
+        }
+    }
+
+    @Test
+    void testAsJava_mapperThrows() {
+        when(client.getSdkMode()).thenReturn(SdkMode.ON_DEMAND);
+        when(cache.get("moscow")).thenReturn(Optional.of("{bad-json}"));
+
+        try (MockedConstruction<WeatherResponseMapper> mapperMock =
+                     Mockito.mockConstruction(
+                             WeatherResponseMapper.class,
+                             (mock, context) -> when(mock.mapJsonToWeather("{bad-json}"))
+                                     .thenThrow(new RuntimeException("parse failed"))
+                     )) {
+
+            WeatherRequestTerminator terminator = new WeatherRequestTerminator(client, logger, rs);
+
+            assertThrows(WeatherSerializationException.class, terminator::asJava);
+        }
     }
 
 }

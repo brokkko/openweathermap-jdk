@@ -11,6 +11,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class LoggerFactoryTest {
 
     @Test
+    void testConstructor() {
+        LoggerFactory factory = new LoggerFactory();
+        assertNotNull(factory);
+    }
+
+    @Test
     void testCreateDefaultLogger() {
         WeatherLogger logger = LoggerFactory.create(
                 LoggerType.DEFAULT,
