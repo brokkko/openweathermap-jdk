@@ -55,6 +55,8 @@ public class RequestSettings {
     }
 
     /**
+     * Gets request parameters.
+     *
      * @return a map of all configured request parameters.
      */
     public Map<String, String> getRequestParameters() {
@@ -71,6 +73,8 @@ public class RequestSettings {
     }
 
     /**
+     * Gets URL builder.
+     *
      * @return internal URL builder used to construct the final endpoint path.
      */
     public StringBuilder getUrlBuilder() {
@@ -78,6 +82,8 @@ public class RequestSettings {
     }
 
     /**
+     * Gets unit system.
+     *
      * @return the selected unit system (metric/imperial/standard).
      */
     public UnitSystem getUnitSystem() {
@@ -95,6 +101,8 @@ public class RequestSettings {
     }
 
     /**
+     * Gets Language.
+     *
      * @return the selected language for API responses.
      */
     public Language getLanguage() {

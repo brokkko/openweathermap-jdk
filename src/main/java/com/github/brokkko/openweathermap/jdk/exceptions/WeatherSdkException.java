@@ -5,11 +5,23 @@ package com.github.brokkko.openweathermap.jdk.exceptions;
  * Extends RuntimeException, so it is unchecked.
  */
 public class WeatherSdkException extends RuntimeException {
-  public WeatherSdkException(String message) {
+
+    /**
+     * Creates a new {@code WeatherSdkException}.
+     *
+     * @param message description
+     */
+    public WeatherSdkException(String message) {
     super(message);
   }
 
-  public WeatherSdkException(String message, Throwable cause) {
+    /**
+     * Creates a new {@code WeatherSdkException}.
+     *
+     * @param message description
+     * @param cause   the underlying cause
+     */
+    public WeatherSdkException(String message, Throwable cause) {
     super(message, cause);
   }
 }

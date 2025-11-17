@@ -57,6 +57,12 @@ public class ClientConfig {
         private int httpTimeoutSeconds = 10;
 
         /**
+         * Creates builder instance.
+         */
+        public Builder() {}
+
+
+        /**
          * Sets the API key. This value is required.
          *
          * @param apiKey OpenWeatherMap API key

@@ -12,7 +12,6 @@ import static com.github.brokkko.openweathermap.jdk.constants.LogMessages.CACHE_
 
 /**
  * Thread-safe in-memory cache storing weather API responses.
- * <p>
  * Supports TTL expiration and a size limit. When the capacity is exceeded,
  * the oldest entry is evicted. Each entry stores:
  * <ul>
@@ -20,7 +19,6 @@ import static com.github.brokkko.openweathermap.jdk.constants.LogMessages.CACHE_
  *   <li>timestamp of when it was fetched</li>
  *   <li>the {@link RequestSettings} associated with the response</li>
  * </ul>
- * </p>
  */
 public class WeatherCacheServiceImpl implements WeatherCacheService {
     private final int capacity;

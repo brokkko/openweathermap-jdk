@@ -19,6 +19,11 @@ import static com.github.brokkko.openweathermap.jdk.constants.DefaultValueConsta
 public class RetryPolicyFactory {
 
     /**
+     * Creates a {@link RetryPolicy} instance.
+     */
+    public RetryPolicyFactory() {}
+
+    /**
      * Creates a {@link RetryPolicy} instance for the specified retry policy type.
      *
      * @param type   the type of retry strategy

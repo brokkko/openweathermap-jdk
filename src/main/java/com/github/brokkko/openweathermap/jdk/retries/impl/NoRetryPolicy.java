@@ -14,6 +14,11 @@ import com.github.brokkko.openweathermap.jdk.retries.RetryableOperation;
 public class NoRetryPolicy implements RetryPolicy {
 
     /**
+     * Creates NoRetryPolicy instance.
+     */
+    public NoRetryPolicy() {}
+
+     /**
      * Executes the operation once without retrying.
      *
      * @param operation retryable operation

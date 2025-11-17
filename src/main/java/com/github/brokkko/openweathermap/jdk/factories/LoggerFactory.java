@@ -15,6 +15,12 @@ import com.github.brokkko.openweathermap.jdk.logging.impl.DefaultWeatherLogger;
 public class LoggerFactory {
 
     /**
+     * Creates a {@link WeatherLogger}.
+     */
+    public LoggerFactory() {
+    }
+
+    /**
      * Creates a {@link WeatherLogger} according to the specified logger type.
      *
      * @param type     the logger implementation type to instantiate

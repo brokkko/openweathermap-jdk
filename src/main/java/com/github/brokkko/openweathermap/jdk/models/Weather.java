@@ -6,7 +6,6 @@ import java.util.Objects;
 /**
  * Represents a complete set of weather information observed or calculated
  * for a specific {@link Location} at a given {@link java.time.LocalDateTime}.
- * <p>
  * The class acts as an aggregated data holder combining:
  * <ul>
  *     <li>{@link WeatherState} — textual description and icon info</li>
@@ -19,7 +18,6 @@ import java.util.Objects;
  *     <li>{@link Clouds} — cloudiness information</li>
  *     <li>{@link Location} — city, coordinates, country code</li>
  * </ul>
- * <p>
  */
 public class Weather {
 
@@ -39,6 +37,11 @@ public class Weather {
     private Clouds clouds;
 
     private Location location;
+
+    /**
+     * Create weather object.
+     */
+    public Weather() {}
 
     /**
      * Returns the timestamp of when the weather data was calculated.

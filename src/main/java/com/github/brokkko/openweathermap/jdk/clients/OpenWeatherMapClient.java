@@ -104,6 +104,7 @@ public class OpenWeatherMapClient {
     }
 
     /**
+     * Gets client sdk mode.
      * @return the SDK operation mode ({@link SdkMode#ON_DEMAND} or {@link SdkMode#POLLING_MODE})
      */
     public SdkMode getSdkMode() {
@@ -111,6 +112,7 @@ public class OpenWeatherMapClient {
     }
 
     /**
+     * Gets cache service.
      * @return internal weather data cache service
      */
     public WeatherCacheService getCacheService() {
@@ -118,6 +120,7 @@ public class OpenWeatherMapClient {
     }
 
     /**
+     * Gets HTTP executor.
      * @return HTTP executor used to send OpenWeatherMap API requests
      */
     public WeatherHttpExecutor getHttpExecutor() {
@@ -125,6 +128,7 @@ public class OpenWeatherMapClient {
     }
 
     /**
+     * Gets API key.
      * @return configured OpenWeatherMap API key
      */
     public String getApiKey() {
@@ -132,6 +136,7 @@ public class OpenWeatherMapClient {
     }
 
     /**
+     * Gets base URL.
      * @return base URL used for API requests
      */
     public String getBaseUrl() {
@@ -219,6 +224,11 @@ public class OpenWeatherMapClient {
         private int httpTimeoutSeconds = DEFAULT_HTTP_TIMEOUT_SEC;
 
         private int pollingIntervalMinutes = DEFAULT_POLLING_INTERVAL_MIN;
+
+        /**
+         * Creates builder instance.
+         */
+        public Builder() {}
 
         /**
          * Sets an API key for OpenWeatherMap API.

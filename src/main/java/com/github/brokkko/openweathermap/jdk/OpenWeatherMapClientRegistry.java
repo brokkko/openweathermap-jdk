@@ -5,6 +5,7 @@ import com.github.brokkko.openweathermap.jdk.clients.OpenWeatherMapClient;
 import com.github.brokkko.openweathermap.jdk.enums.LogLevel;
 import com.github.brokkko.openweathermap.jdk.logging.WeatherLogger;
 import com.github.brokkko.openweathermap.jdk.logging.impl.DefaultWeatherLogger;
+import com.github.brokkko.openweathermap.jdk.retries.RetryPolicy;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,7 +20,7 @@ import static com.github.brokkko.openweathermap.jdk.constants.LogMessages.CLIENT
  * created client, providing efficient resource usage and predictable lifecycle
  * management.
  *
- * <h3>Responsibilities</h3>
+ * <h2>Responsibilities</h2>
  * <ul>
  *     <li>Create new {@link OpenWeatherMapClient} instances on demand</li>
  *     <li>Return cached clients when the same API key is requested</li>
@@ -27,7 +28,7 @@ import static com.github.brokkko.openweathermap.jdk.constants.LogMessages.CLIENT
  *     <li>Log all create/remove events via {@link WeatherLogger}</li>
  * </ul>
  *
- * <h3>Thread Safety</h3>
+ * <h2>Thread Safety</h2>
  * The internal registry uses a {@link ConcurrentHashMap}, ensuring that
  * concurrent calls to {@link #getOrCreate(ClientConfig)} do not result in
  * duplicate client instances.
@@ -38,15 +39,19 @@ public class OpenWeatherMapClientRegistry {
             new DefaultWeatherLogger(OpenWeatherMapClientRegistry.class, LogLevel.INFO);
 
     /**
+     * Creates a {@link OpenWeatherMapClientRegistry} instance.
+     */
+    public OpenWeatherMapClientRegistry() {}
+    /**
      * Retrieves an existing {@link OpenWeatherMapClient} for the given
      * configuration, or creates a new one if it does not exist yet.
      *
      * @param config the configuration used to construct the client
      * @return an existing or newly created {@link OpenWeatherMapClient}
      *
-     * @implNote Clients are uniquely identified and cached by API key.
-     *           All other fields in {@link ClientConfig} are only used when
-     *           creating a new instance and are ignored for cached ones.
+     * Clients are uniquely identified and cached by API key.
+     * All other fields in {@link ClientConfig} are only used when
+     * creating a new instance and are ignored for cached ones.
      */
     public static OpenWeatherMapClient getOrCreate(ClientConfig config) {
         return clients.computeIfAbsent(config.getApiKey(), key -> {

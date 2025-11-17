@@ -13,12 +13,12 @@ import java.util.logging.LogRecord;
  * originating class name, and message text. If a throwable is attached to
  * the {@link LogRecord}, its stack trace is also printed.
  *
- * <h3>Formatting example:</h3>
+ * <h2>Formatting example:</h2>
  * <pre>
  * 2025-01-01 10:15:33.201 [INFO ] (SomeClass) Request started
  * </pre>
  *
- * <h3>Features:</h3>
+ * <h2>Features:</h2>
  * <ul>
  *     <li>Thread-local date formatter for speed and thread-safety</li>
  *     <li>ANSI color output depending on log level</li>
@@ -36,6 +36,11 @@ public class WeatherSdkLogFormatter extends Formatter {
     private static final String COLOR_INFO  = "\u001B[32m";  // green
     private static final String COLOR_WARN  = "\u001B[33m";  // yellow
     private static final String COLOR_ERROR = "\u001B[31m";  // red
+
+    /**
+     * Create weather sdk formatter.
+     */
+    public WeatherSdkLogFormatter() {}
 
     @Override
     public String format(LogRecord record) {

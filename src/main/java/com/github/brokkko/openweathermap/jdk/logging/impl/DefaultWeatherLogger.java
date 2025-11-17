@@ -17,7 +17,7 @@ import java.util.logging.Logger;
  * <p>
  * ANSI colors are applied via the formatter to improve readability.
  *
- * <h3>Features:</h3>
+ * <h2>Features:</h2>
  * <ul>
  *     <li>Per-class logger name</li>
  *     <li>Configurable log level</li>
@@ -29,6 +29,16 @@ public class DefaultWeatherLogger implements WeatherLogger {
 
     private final Logger logger;
 
+    /**
+     * Creates a new logger bound to the given class with the specified log level.
+     * The constructor configures a {@link ConsoleHandler} with a custom
+     * {@link WeatherSdkLogFormatter} and disables parent handlers to avoid
+     * duplicate log output. If multiple instances are created for the same class,
+     * handlers are cleared to prevent double-logging.
+     *
+     * @param clazz the class for which the logger is created
+     * @param level the desired logging level for this logger
+     */
     public DefaultWeatherLogger(Class<?> clazz, LogLevel level) {
         this.logger = Logger.getLogger(clazz.getName());
         this.logger.setUseParentHandlers(false);
@@ -46,26 +56,53 @@ public class DefaultWeatherLogger implements WeatherLogger {
         logger.addHandler(handler);
     }
 
+    /**
+     * Logs a debug-level message using {@link Level#FINE}.
+     *
+     * @param msg the message to log
+     */
     @Override
     public void debug(String msg) {
         logger.fine(msg);
     }
 
+    /**
+     * Logs an info-level message using {@link Level#INFO}.
+     *
+     * @param msg the message to log
+     */
     @Override
     public void info(String msg) {
         logger.info(msg);
     }
 
+    /**
+     * Logs a warning-level message using {@link Level#WARNING}.
+     *
+     * @param msg the message to log
+     */
     @Override
     public void warn(String msg) {
         logger.warning(msg);
     }
 
+    /**
+     * Logs an error-level message using {@link Level#SEVERE} and attaches a throwable.
+     *
+     * @param msg the error message to log
+     * @param t   the associated exception or cause
+     */
     @Override
     public void error(String msg, Throwable t) {
         logger.log(Level.SEVERE, msg, t);
     }
 
+    /**
+     * Maps SDK-level log severity to JDK {@link Level}.
+     *
+     * @param level the SDK log level
+     * @return corresponding {@link Level}
+     */
     private Level toJdkLevel(LogLevel level) {
         return switch (level) {
             case DEBUG -> Level.FINE;

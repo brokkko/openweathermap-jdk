@@ -14,6 +14,12 @@ public class WeatherState {
     private String iconId;
     private final WeatherCondition weatherConditionEnum;
 
+    /**
+     * Create weather state.
+     * @param id weather state id
+     * @param name weather state name
+     * @param description weather state description
+     */
     public WeatherState(Integer id, String name, String description) {
         this.id = id;
         this.name = name;
